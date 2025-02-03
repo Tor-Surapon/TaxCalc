@@ -1,0 +1,88 @@
+.container {
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    background-color: white;
+}
+
+.container + .container {
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1em;
+}
+
+input {
+    width: 95%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 20px;
+}
+
+input[readonly] {
+    background-color: #f5f5f5;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 1em;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+}
+
+h2 > span, label > span {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+.highlight {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    margin-top: 20px;
+}
+
+.highlight input {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Remove this rule as we're handling colors in JavaScript
+.highlight input[value^="-"] {
+    color: #dc3545;
+}
+*/
+
+/* Add new layout styles */
+.page-container {
+    display: flex;
+    gap: 20px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.left-column {
+    flex: 0 0 auto;
+    width: 600px;
+}
+
+.right-column {
+    flex: 1;
+    min-width: 600px;
+}

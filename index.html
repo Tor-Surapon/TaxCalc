@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณภาษี</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="left-column">
+            <div class="container">
+                <h1>🧮 คำนวณภาษี</h1>
+                <form id="taxForm">
+                    <div class="form-group">
+                        <label for="yearlyIncome">รายได้รวมทั้งปี:</label>
+                        <input type="number" id="yearlyIncome" required>                
+                    </div>
+                    <div class="form-group">
+                        <label for="expenses">หัก: ค่าใช้จ่าย 50% แต่ไม่เกิน 100,000 บาท:</label>
+                        <input type="number" id="expenses" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="netIncome">เงินได้หลังหักค่าใช้จ่าย:</label>
+                        <input type="number" id="netIncome" readonly>
+                    </div>
+                </form>
+            </div>
+
+            <div class="container">
+                <h2>📊 สรุปการคำนวณภาษี</h2>
+                <form id="taxSummaryForm">
+                    <div class="form-group">
+                        <label for="netTaxableIncome">เงินได้สุทธิสำหรับคำนวณภาษี:</label>
+                        <input type="number" id="netTaxableIncome" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="taxRate">อัตราภาษี:</label>
+                        <input type="text" id="taxRate" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="taxAmount">ภาษีที่ต้องเสีย:</label>
+                        <input type="number" id="taxAmount" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="withholding">หัก: ภาษีที่บริษัทหักนำส่ง:</label>
+                        <input type="number" id="withholding">
+                    </div>
+                    <div class="form-group highlight">
+                        <label id="taxResultLabel" for="taxResult">ภาษีที่ต้องชำระเพิ่ม/ได้รับคืน:</label>
+                        <input type="number" id="taxResult" readonly>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="container">
+                <h2>💰 ค่าลดหย่อน</h2>
+                <form id="deductionForm">
+                    <div class="form-group">
+                        <label for="personalDeduction">1.ค่าลดหย่อนส่วนตัว 👤 :</label>
+                        <input type="number" id="personalDeduction" value="60000" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: -webkit-inline-flex; align-items: center; width: 250px; white-space: nowrap; gap: 5px;">
+                            2.คู่สมรสไม่มีรายได้ 💑 :
+                        </label>
+                        <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasSpouse" style="width: 50px;"> เพิ่มคู่สมรส (กรณีคู่สมรสไม่มีรายได้)
+                            </label>
+                        </div>
+                        <input type="number" id="spouseDeduction" value="60000" readonly disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>3.ค่าลดหย่อนบุตร 👶 : (คนละ 30,000 บาท สูงสุด 3 คน)</label>           
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            จำนวนบุตร: 
+                            <input type="number" id="childCount" min="0" max="3" value="0" style="width: 100px;">คน
+                        </label>
+                        <input type="number" id="childDeduction" value="0" readonly style="margin-top: 5px;">     
+                    </div>
+                    <div class="form-group">
+                        <label>4.ค่าลดหย่อนบิดามารดา 👴👵 : (คนละ 30,000 บาท อายุเกิน 60 ปี)</label>
+                        <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasFather" style="width: 50px;"> บิดา
+                            </label>
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasMother" style="width: 50px;"> มารดา
+                            </label>
+                        </div>                
+                        <input type="number" id="parentDeduction" value="0" readonly>         
+                    </div>
+
+                    <div class="form-group">
+                        <label>5.ค่าลดหย่อนผู้พิการหรือทุพพลภาพ ♿ : (คนละ 60,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasDisabilityPerson" style="width: 50px;"> ผู้มีเงินได้พิการ
+                            </label>
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasDisabilitySpouse" style="width: 50px;"> คู่สมรสพิการ
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                บุตรพิการ: 
+                                <input type="number" id="disabilityChildCount" min="0" value="0" style="width: 100px;">คน
+                            </label>
+                        </div>
+                        <input type="number" id="disabilityDeduction" value="0" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>6.ค่าฝากครรภ์และทำคลอด 🤰 : (ลดหย่อนตามจริง สูงสุด 60,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;">
+                            <label style="display: flex; align-items: flex-start; gap: 0px;">
+                                <input type="checkbox" id="hasPregnancy" style="width: 50px;"> มีค่าใช้จ่ายฝากครรภ์/ทำคลอด
+                            </label>
+                            <div style="margin-left: 50px;" id="pregnancyInputGroup">
+                                <label style="display: flex; align-items: center; gap: 10px;">
+                                    จำนวนเงิน: 
+                                    <input type="number" id="pregnancyExpense" min="0" max="60000" value="0" style="width: 150px;" disabled>
+                                    บาท
+                                </label>
+                            </div>
+                        </div>
+                        <input type="number" id="pregnancyDeduction" value="0" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>7.เบี้ยประกันชีวิต 📋 : (ลดหย่อนตามจริง สูงสุด 100,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hasLifeInsurance" style="width: 50px;">
+                                <input type="number" id="lifeInsuranceExpense" min="0" max="100000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>8.เบี้ยประกันสุขภาพบิดามารดา 👨‍👩‍👦 : (ลดหย่อนตามจริง สูงสุด 15,000 บาท/ท่าน)</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label style="width: 100px;">บิดา:</label>
+                                <input type="checkbox" id="hasFatherHealth" style="width: 50px;">
+                                <input type="number" id="fatherHealthExpense" min="0" max="15000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <label style="width: 100px;">มารดา:</label>
+                                <input type="checkbox" id="hasMotherHealth" style="width: 50px;">
+                                <input type="number" id="motherHealthExpense" min="0" max="15000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                        </div>
+                        <input type="number" id="parentsHealthDeduction" value="0" readonly style="margin-top: 10px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>9.เบี้ยประกันสุขภาพตัวเอง 🏥 : (ลดหย่อนตามจริง สูงสุด 25,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasHealthInsurance" style="width: 50px;">
+                            <input type="number" id="healthInsuranceExpense" min="0" max="25000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>10.กองทุนสำรองเลี้ยงชีพ/กองทุนสงเคราห์ครู/กบข. 💼 : (ลดหย่อนไม่เกิน 10,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hasPensionFund" style="width: 50px;">
+                                <input type="number" id="pensionFundExpense" min="0" max="10000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>11.กองทุนรวมเพื่อการเลี้ยงชีพ RMF 📈 : (ลดหย่อนไม่เกิน 30% ของเงินได้ และไม่เกิน 500,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hasRMF" style="width: 50px;">
+                                <input type="number" id="rmfExpense" min="0" max="500000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>12.เบี้ยประกันชีวิตแบบบำนาญ 👴 : (ลดหย่อนไม่เกิน 15% ของเงินได้ และไม่เกิน 200,000 บาท)</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hasAnnuityInsurance" style="width: 50px;">
+                                <input type="number" id="annuityInsuranceExpense" min="0" max="200000" value="0" style="width: 150px;" disabled>
+                                บาท
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="insuranceDeduction">13.ค่าลดหย่อนประกันสังคม 🏥 : (ลดหย่อนตามที่ได้จ่ายไปจริง สูงสุด 9,000 บาท)</label>
+                        <input type="number" id="insuranceDeduction" min="0" max="9000">
+                    </div>
+
+                    <div class="form-group">
+                        <label>14.กองทุนการออมแห่งชาติ (กอช.) 🏦 : (ไม่เกิน 30,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasNSF" style="width: 50px;">
+                            <input type="number" id="nsfExpense" min="0" max="30000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>15.ค่าซื้อกองทุนรวมเพื่อการออม (SSF) 📈 : (ไม่เกิน 30% ของเงินได้ที่ต้องเสียภาษี และไม่เกิน 200,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasSSF" style="width: 50px;">
+                            <input type="number" id="ssfExpense" min="0" max="200000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>16.ดอกเบี้ยซื้อที่อยู่อาศัย 🏠 : (ไม่เกิน 100,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasHomeLoan" style="width: 50px;">
+                            <input type="number" id="homeLoanExpense" min="0" max="100000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>17.เงินบริจาคพรรคการเมือง 🗳️ : (ไม่เกิน 10,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasPoliticalDonation" style="width: 50px;">
+                            <input type="number" id="politicalDonationExpense" min="0" max="10000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>18.เงินลงทุนธุรกิจ Social Enterprise 🤝 : (ลดหย่อนตามจริง)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasSocialEnterprise" style="width: 50px;">
+                            <input type="number" id="socialEnterpriseExpense" min="0" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>19.ค่าลดหย่อน Easy E-Receipt 2567 📱 : (ไม่เกิน 50,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasEReceipt" style="width: 50px;">
+                            <input type="number" id="eReceiptExpense" min="0" max="50000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>20.ค่าซื้อกองทุนไทยเพื่อความยั่งยืน (Thai ESG) 🌱 : (ไม่เกิน 30% ของเงินได้และไม่เกิน 300,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasThaiESG" style="width: 50px;">
+                            <input type="number" id="thaiESGExpense" min="0" max="300000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>21.ค่าลดหย่อนเที่ยวเมืองรอง 2567 🏖️ : (ลดหย่อนตามจริง สูงสุด 40,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasSecondaryTourism" style="width: 50px;">
+                            <input type="number" id="secondaryTourismExpense" min="0" max="40000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>22.ค่าสร้างบ้านใหม่ 2567-2568 🏗️ : (ลดหย่อน 50% ของค่าก่อสร้าง สูงสุด 5,000,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasNewHouse" style="width: 50px;">
+                            <input type="number" id="newHouseExpense" min="0" max="5000000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>23.ค่าซ่อมแซมบ้านน้ำท่วม 2567 🏠💧 : (ลดหย่อนตามจริง สูงสุด 100,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasFloodHouseRepair" style="width: 50px;">
+                            <input type="number" id="floodHouseRepairExpense" min="0" max="100000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>24.ค่าซ่อมแซมรถน้ำท่วม 2567 🚗💧 : (ลดหย่อนตามจริง สูงสุด 30,000 บาท)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasFloodCarRepair" style="width: 50px;">
+                            <input type="number" id="floodCarRepairExpense" min="0" max="30000" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>25.เงินบริจาคเพื่อการศึกษา/กีฬา/พัฒนาสังคม/โรงพยาบาลรัฐ 🎓 : (2 เท่าของจำนวนที่จ่ายจริง)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasEducationDonation" style="width: 50px;">
+                            <input type="number" id="educationDonationExpense" min="0" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>26.เงินบริจาคทั่วไป 🤝 : (ไม่เกิน 10% ของเงินได้หลังหักค่าใช้จ่ายและค่าลดหย่อน)</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasGeneralDonation" style="width: 50px;">
+                            <input type="number" id="generalDonationExpense" min="0" value="0" style="width: 150px;" disabled>
+                            บาท
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="totalDeduction">📊 รวมค่าลดหย่อนทั้งหมด:</label>
+                        <input type="number" id="totalDeduction" readonly>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+```
+</copilot-edited-file>  
